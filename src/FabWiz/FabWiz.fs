@@ -5,37 +5,70 @@ open Fabulous
 open Fabulous.XamarinForms
 open Xamarin.Forms
 open System.IO
-open Newtonsoft.Json
 open Fabulous.CodeGen.AssemblyReader.Models
+open Fabulous.CodeGen.Models
+open FabWiz.Hierarchy
+open Xamarin.Forms
 
 module App = 
     type Model = 
-      { Count : int }
+      { Hierarchy : Node option }
 
     type Msg = 
         | TestCodeGen
-        | Done
+        | Loaded of Node
         
     let loadAssemblyReaderOutput () =
-        let x =
+        let readerTypes =
             File.ReadAllText "/Git/GitHub/Fabulous/1-assembly-types.json"
-            |> JsonConvert.DeserializeObject<AssemblyType array>
+            |> Fabulous.CodeGen.Json.deserialize<AssemblyType array>
+            
+        let bindings =
+            File.ReadAllText "/Git/GitHub/Fabulous/Fabulous.XamarinForms/src/Fabulous.XamarinForms/Xamarin.Forms.Core.json"
+            |> Fabulous.CodeGen.Json.deserialize<Bindings>
         
-        Cmd.none
+        Hierarchy.createHierarchy readerTypes bindings
+        |> Loaded
+        |> Cmd.ofMsg
 
-    let initModel = { Count = 0 }
+    let initModel = { Hierarchy = None }
 
     let init () = initModel, Cmd.none
 
     let update msg model =
         match msg with
         | TestCodeGen -> model, loadAssemblyReaderOutput()
+        | Loaded root -> { model with Hierarchy = Some root }, Cmd.none
+        
+    let rec hierarchyView (indent: int) (node: Node) =
+        let marginLeft = Thickness((float indent) * 20., 0., 0., 0.)
+        
+        [
+            yield View.Label(
+                margin = marginLeft,
+                text = sprintf "%i - %s" indent (node.TypeName.Replace("Xamarin.Forms.", "")),
+                textColor = match node.BindState with Bound -> Color.Green | Unbound -> Color.LightGray)
+            
+            for descendant in node.Descendants do
+                for n in (hierarchyView (indent + 1) descendant) do
+                    yield n
+        ]
 
     let view (model: Model) dispatch =
         View.ContentPage(
-          content = View.StackLayout(padding = 20.0, verticalOptions = LayoutOptions.Center,
+          content = View.StackLayout(
+            padding = 20.0,
             children = [ 
-                View.Button(text = "Test CodeGen", command = fun () ->  dispatch TestCodeGen)
+                yield View.Button(text = "Test CodeGen", command = fun () ->  dispatch TestCodeGen)
+                
+                match model.Hierarchy with
+                | None -> yield View.Label("No hierarchy loaded")
+                | Some root ->
+                    let nodes = (hierarchyView 0 root)
+                    
+                    yield View.ScrollView(
+                        verticalOptions = LayoutOptions.FillAndExpand,
+                        content = View.StackLayout(children = nodes))
             ]))
 
     // Note, this declaration is needed if you enable LiveUpdate
