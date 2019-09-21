@@ -1,1 +1,1 @@
-FabulousCodeGenViewer
+FabWiz
