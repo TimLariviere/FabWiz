@@ -10,9 +10,18 @@ module Hierarchy =
     type Node =
         { TypeName: string
           BindState: BindState
+          Properties: string list
           Descendants: Node list }
         
     let rec private createNodeForType (assemblies: AssemblyType array) (bindings: Bindings) typeName =
+        let properties =
+            assemblies
+            |> Array.find (fun asm -> asm.Name = typeName)
+            |> (fun asm -> asm.Properties)
+            |> Array.map (fun p -> p.Name)
+            |> Array.sort
+            |> List.ofArray
+        
         let descendants =
             assemblies
             |> Array.filter (fun asm -> asm.InheritanceHierarchy.Length > 0 && asm.InheritanceHierarchy.[0] = typeName)
@@ -24,6 +33,7 @@ module Hierarchy =
             
         { TypeName = typeName
           BindState = if isBound then Bound else Unbound
+          Properties = properties
           Descendants = descendants |> List.map (createNodeForType assemblies bindings) }
         
     let createHierarchy (assemblies: AssemblyType array) (bindings: Bindings) =

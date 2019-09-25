@@ -49,9 +49,21 @@ module App =
                 text = sprintf "%i - %s" indent (node.TypeName.Replace("Xamarin.Forms.", "")),
                 textColor = match node.BindState with Bound -> Color.Green | Unbound -> Color.LightGray)
             
-            for descendant in node.Descendants do
-                for n in (hierarchyView (indent + 1) descendant) do
-                    yield n
+            if node.Properties.Length > 0 then
+                for p in node.Properties do
+                    yield View.Label(
+                        margin = Thickness(marginLeft.Left + 20., 0., 0., 0.),
+                        text = sprintf "Prop - %s" p)
+            
+            if node.Properties.Length > 0 && node.Descendants.Length > 0 then
+                yield View.Label(
+                    margin = Thickness(marginLeft.Left + 20., 0., 0., 0.),
+                    text = "--------")
+            
+            if node.Descendants.Length > 0 then
+                for descendant in node.Descendants do
+                    for n in (hierarchyView (indent + 1) descendant) do
+                        yield n
         ]
 
     let view (model: Model) dispatch =
