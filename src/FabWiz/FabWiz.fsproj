@@ -6,18 +6,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Hierarchy.fs" />
-    <Compile Include="FabWiz.fs" />
+    <Compile Include="Components\Nodes.fs" />
+    <Compile Include="Components\Tree.fs" />
+    <Compile Include="App.fs" />
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Fabulous.CodeGen" Version="0.41.0" />
-    <PackageReference Include="Xamarin.Forms" Version="4.2.0.709249" />
-    <PackageReference Include="Xamarin.Essentials" Version="1.1.0" />
-    <PackageReference Include="Fabulous.XamarinForms" Version="0.42.0" />
-    <PackageReference Include="Fabulous.XamarinForms.LiveUpdate" Version="0.42.0" />
-    <PackageReference Include="FSharp.Core" Version="4.6.2" />
-    <PackageReference Update="FSharp.Core" Version="4.6.2" /> <!-- workaround for VSMac bug https://github.com/mono/monodevelop/pull/5137 --> 
+    <PackageReference Include="Fabulous.CodeGen" Version="0.50.0-alpha.2" />
+    <PackageReference Include="Fabulous.XamarinForms" Version="0.50.0-alpha.2" />
+    <PackageReference Include="Fabulous.XamarinForms.LiveUpdate" Version="0.50.0-alpha.2" />
+    <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
+    <PackageReference Include="FSharp.Core" Version="4.7.0" />
+    <PackageReference Update="FSharp.Core" Version="4.7.0" /> <!-- workaround for VSMac bug https://github.com/mono/monodevelop/pull/5137 --> 
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 </Project>
